@@ -61,7 +61,7 @@ if page == "Accueil":
             
                 
     with col2:
-        st.markdown("### Régions couvertes")
+        st.markdown("### Zones couvertes")
         regions = ["Fatick", "Foundiougne", "Kaolack", "Diourbel", "Birkelane","Nioro"]
         for region in regions:
             st.success(f"✓ {region}")
@@ -258,4 +258,5 @@ with col_f2:
 
 with col_f3:
     st.caption("L'IA au service de l'agriculture")
+
 
