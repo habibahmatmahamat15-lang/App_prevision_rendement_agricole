@@ -12,7 +12,7 @@ df= pd.read_csv("rendement_cleaned.csv")
 
 # Sidebar - Navigation
 with st.sidebar:
-    st.title("Navigation")
+    st.title("🌐 Navigation")
     page = st.radio(
         "Sélectionnez une section",
         ["Accueil", "Prévision", "Visualisations", "À propos"]
@@ -299,6 +299,7 @@ with col_f2:
 
 with col_f3:
     st.caption("L'IA au service de l'agriculture")
+
 
 
 
