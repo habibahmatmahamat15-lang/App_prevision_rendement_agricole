@@ -250,7 +250,7 @@ elif page == "Visualisations":
         st.info("Comprendre l'impact des conditions climatiques sur le rendement agricole.")
 elif page == "À propos":
     st.header("À propos du Système de Prévision Agricole")
-    tab1, tab2,tab3 = st.tabs(["Informations", "Équipe de Développement", "Contact"])
+    tab1, tab2 = st.tabs(["Informations", "Équipe de Développement"])
     with tab1:
         st.write("""
                 Ce système a été développé pour aider les agriculteurs à optimiser leurs pratiques agricoles 
@@ -279,15 +279,13 @@ elif page == "À propos":
     💻 Développeur  
     📊 Analyste de données  
     """)
-    with tab3:
+        st.divider()
         st.subheader("Contact")
         st.markdown("""
-    **Pour toute question ou assistance, veuillez nous contacter à :**
-
-    - 📧 **Email** : habibahmatmahamat15@gmail.com  
-    - 📞 **Téléphone** : +221 78 752 75 78
-    """)
-
+        **Pour toute question ou assistance, veuillez nous contacter :**
+        - 📧 **Email** : habibahmatmahamat15@gmail.com  
+        - 📞 **Téléphone** : +221 78 752 75 78
+        """)
 
 # Footer
 st.markdown("---")
@@ -301,6 +299,7 @@ with col_f2:
 
 with col_f3:
     st.caption("L'IA au service de l'agriculture")
+
 
 
 
