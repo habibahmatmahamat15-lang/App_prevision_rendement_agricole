@@ -12,14 +12,15 @@ df= pd.read_csv("rendement_cleaned.csv")
 
 # Sidebar - Navigation
 with st.sidebar:
-    st.image("senegal.jpg", width=100)
     st.title("Navigation")
     page = st.radio(
         "Sélectionnez une section",
         ["Accueil", "Prévision", "Visualisations", "À propos"]
     )
-    st.markdown("---")
-    st.info("**Cultures supportées:**\n- Niébé\n- Maïs\n- Pastèque\n- Arachide\n- Mil")
+    st.markdown("Types de cultures")
+    cultures = ["Niébé", "Maïs", "Pastèque", "Arachide", "Mil"]
+    for culture in cultures:
+    st.success(f"✓ {cultures}")
     st.markdown("---")
     st.caption("Version 1.0 - 2026")
 ## Titre d'application 
@@ -58,13 +59,7 @@ if page == "Accueil":
                 - Comparer valeurs réelles et prédites
                 - Appui à la planification agricole
             """)
-            
-                
-    with col2:
-        st.markdown("### Zones couvertes")
-        regions = ["Fatick", "Foundiougne", "Kaolack", "Diourbel", "Birkelane","Nioro"]
-        for region in regions:
-            st.success(f"✓ {region}")
+        
             
         st.markdown("### Besoin d'aide ?")
         st.info("Consultez la section **À propos** pour plus d'informations.")
@@ -258,5 +253,6 @@ with col_f2:
 
 with col_f3:
     st.caption("L'IA au service de l'agriculture")
+
 
 
