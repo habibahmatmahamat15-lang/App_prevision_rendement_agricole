@@ -20,7 +20,7 @@ with st.sidebar:
     st.markdown("Types de cultures")
     cultures = ["Niébé", "Maïs", "Pastèque", "Arachide", "Mil"]
     for culture in cultures:
-    st.success(f"✓ {cultures}")
+        st.success(f"✓ {cultures}")
     st.markdown("---")
     st.caption("Version 1.0 - 2026")
 ## Titre d'application 
@@ -253,6 +253,7 @@ with col_f2:
 
 with col_f3:
     st.caption("L'IA au service de l'agriculture")
+
 
 
 
