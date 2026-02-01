@@ -65,53 +65,103 @@ elif page == "Prévision":
     st.header("Prévision du rendement agricole")
     st.write("Utilisez vos données pour prédire le rendement des cultures.")
 
-    X = df.drop("yield", axis= 1)
+    # =============================
+    # Préparation des données
+    # =============================
+    X = df.drop("yield", axis=1)
     y = df["yield"]
-        
-        # Division des données
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-        
-        # Modèle de régression linéaire
+
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, test_size=0.2, random_state=42
+    )
+
     model = LinearRegression()
     model.fit(X_train, y_train)
-        
-        # Prédictions
-    y_pred = model.predict(X_test)
-    
-    ## Les valeurs entrées par l'utilisateur
+
+    # =============================
+    # Fonction de prédiction
+    # =============================
     def input_value(culture_type, zone, rainfall, fertilizer_quantity):
-        data= np.array([
-            culture_type, zone, rainfall, fertilizer_quantity
+        data = np.array([
+            culture_type,
+            zone,
+            rainfall,
+            fertilizer_quantity
         ])
         prediction_data = model.predict(data.reshape(1, -1))
         return prediction_data
-    
+
+    # =============================
+    # MAPPINGS
+    # =============================
+    culture_mapping = {
+        "Arachide": 0,
+        "Maïs": 1,
+        "Mil": 2,
+        "Niébé": 3,
+        "Pastèque": 4
+    }
+
+    zone_mapping = {
+        "Birkelane": 0,
+        "Diourbel": 1,
+        "Fatick": 2,
+        "Foundiougne": 3,
+        "Kaolack": 4,
+        "Nioro": 5
+    }
+
+    # =============================
+    # Interface utilisateur
+    # =============================
     col_a, col_b = st.columns(2)
 
     with col_a:
-        culture_type = st.number_input(
-            "Code culture (0=Arachide, 1=Maïs, 2=Mil, 3=Niébé, 4=Pastèque)",
-            min_value=0,
-            max_value=4,
-            step=1
+        culture_label = st.selectbox(
+            "Type de culture",
+            options=list(culture_mapping.keys())
         )
-        # Sélection zone
-        zone = st.number_input(
-            "Code zone (0=Birkelane, 1=Diourbel, 2=Fatick, 3=Foundiougne, 4=Kaolack, 5=Nioro)",
-            min_value=0,
-            max_value=5,
-            step=1
-        )
-    with col_b:
-        rainfall= st.number_input(
-            "rainfall (mm)", min_value=309.2, max_value=897.6, step=50.0
-        )
-        fertilizer_quantity= st.number_input(
-            "fertilizer_quantity (kg)", min_value=20, max_value=150, step=10)
 
-    if st.button("🔮 prediction"):
-        prediction= input_value(culture_type, zone, rainfall, fertilizer_quantity)
-        st.success(f"💰 Rendement estimé : **{prediction[0]:,.2f} t/ha**")
+        zone_label = st.selectbox(
+            "Zone agricole",
+            options=list(zone_mapping.keys())
+        )
+
+    with col_b:
+        rainfall = st.number_input(
+            "Rainfall (mm)",
+            min_value=309.2,
+            max_value=897.6,
+            step=50.0
+        )
+
+        fertilizer_quantity = st.number_input(
+            "Fertilizer quantity (kg)",
+            min_value=20,
+            max_value=150,
+            step=10
+        )
+
+    # =============================
+    # Mapping AVANT prédiction
+    # =============================
+    culture_type = culture_mapping[culture_label]
+    zone = zone_mapping[zone_label]
+
+    # =============================
+    # Bouton prédiction
+    # =============================
+    if st.button("🔮 Prédire le rendement"):
+        prediction = input_value(
+            culture_type,
+            zone,
+            rainfall,
+            fertilizer_quantity
+        )
+
+        st.success(
+            f"🌾 Rendement estimé : **{prediction[0]:,.2f} t/ha**"
+        )
 
 
     st.subheader("📊 Performance du modèle")
@@ -250,6 +300,7 @@ with col_f2:
 
 with col_f3:
     st.caption("L'IA au service de l'agriculture")
+
 
 
 
