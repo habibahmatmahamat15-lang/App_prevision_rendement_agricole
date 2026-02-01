@@ -77,6 +77,7 @@ elif page == "Prévision":
 
     model = LinearRegression()
     model.fit(X_train, y_train)
+    y_pred = model.predict(X_test)
 
     # =============================
     # Fonction de prédiction
@@ -300,6 +301,7 @@ with col_f2:
 
 with col_f3:
     st.caption("L'IA au service de l'agriculture")
+
 
 
 
