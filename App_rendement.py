@@ -26,43 +26,40 @@ with st.sidebar:
 ## Titre d'application 
 st.title("Système de Prévision Agricole")
 if page == "Accueil":
-    col1, col2 = st.columns([2, 1])
-        
-    with col1:
-        st.markdown("## Bienvenue sur le système de prévision agricole")
-        st.write("""
-            Ce système permet de prendre de meilleures 
-            décisions agricoles concernant vos cultures de maïs et céréales locales.
-            """)
+    st.markdown("## Bienvenue sur le système de prévision agricole")
+    st.write("""
+        Ce système permet de prendre de meilleures 
+        décisions agricoles concernant vos cultures de maïs et céréales locales.
+        """)
             
-        st.markdown("### Que pouvez-vous faire ?")
+    st.markdown("### Que pouvez-vous faire ?")
             
-        col_a, col_b, col_c = st.columns(3)
-        with col_a:
-            st.markdown("""
-                **🌱 Prédire les rendements agricoles**
-                - Estimer le rendement des cultures (t/ha)
-                - Basé sur la zone, la culture, la pluviométrie, la quantité d'engrais
-                - Aide à la prise de décision avant la saison
-                """)
-        with col_b:
-            st.markdown("""
-                **📊 Analyser les données agricoles**
-                - Comparer les rendements par zone
-                - Identifier les cultures les plus performantes
-                - Visualiser l’impact des précipitations
-                """)
-        with col_c:
-            st.markdown("""
-                **📈 Suivre et exploiter les résultats**
-                - Évaluer la performance du modèle
-                - Comparer valeurs réelles et prédites
-                - Appui à la planification agricole
+    col_a, col_b, col_c = st.columns(3)
+    with col_a:
+        st.markdown("""
+            **🌱 Prédire les rendements agricoles**
+            - Estimer le rendement des cultures (t/ha)
+            - Basé sur la zone, la culture, la pluviométrie, la quantité d'engrais
+            - Aide à la prise de décision avant la saison
             """)
+    with col_b:
+        st.markdown("""
+            **📊 Analyser les données agricoles**
+            - Comparer les rendements par zone
+            - Identifier les cultures les plus performantes
+            - Visualiser l’impact des précipitations
+            """)
+    with col_c:
+        st.markdown("""
+            **📈 Suivre et exploiter les résultats**
+            - Évaluer la performance du modèle
+            - Comparer valeurs réelles et prédites
+            - Appui à la planification agricole
+        """)
         
             
-        st.markdown("### Besoin d'aide ?")
-        st.info("Consultez la section **À propos** pour plus d'informations.")
+    st.markdown("### Besoin d'aide ?")
+    st.info("Consultez la section **À propos** pour plus d'informations.")
 
 elif page == "Prévision":
     st.header("Prévision du rendement agricole")
@@ -253,6 +250,7 @@ with col_f2:
 
 with col_f3:
     st.caption("L'IA au service de l'agriculture")
+
 
 
 
