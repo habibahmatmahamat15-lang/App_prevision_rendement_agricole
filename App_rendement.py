@@ -6,16 +6,48 @@ from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_squared_error, r2_score
 import numpy as np
+import io
+
+if "historique" not in st.session_state:
+    st.session_state["historique"] = []
+
 
 # Load dataset
 df= pd.read_csv("rendement_cleaned.csv")
+
+# =============================
+# Préparation des données et entraînement du modèle
+# =============================
+X = df.drop("yield", axis=1)
+y = df["yield"]
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42
+)
+
+model = LinearRegression()
+model.fit(X_train, y_train)
+y_pred = model.predict(X_test)
+
+# =============================
+# Fonction de prédiction
+# =============================
+def input_value(culture_type, zone, rainfall, fertilizer_quantity):
+    data = np.array([
+        culture_type,
+        zone,
+        rainfall,
+        fertilizer_quantity
+    ])
+    prediction_data = model.predict(data.reshape(1, -1))
+    return prediction_data
 
 # Sidebar - Navigation
 with st.sidebar:
     st.title("🌐 Navigation")
     page = st.radio(
         "Sélectionnez une section",
-        ["Accueil", "Prévision", "Visualisations", "À propos"]
+        ["Accueil", "Prévision", "Visualisations", "Historique", "Rapport", "À propos"]
     )
     st.markdown("Types de cultures")
     cultures = ["Niébé", "Maïs", "Pastèque", "Arachide", "Mil"]
@@ -64,33 +96,6 @@ if page == "Accueil":
 elif page == "Prévision":
     st.header("Prévision du rendement agricole")
     st.write("Utilisez vos données pour prédire le rendement des cultures.")
-
-    # =============================
-    # Préparation des données
-    # =============================
-    X = df.drop("yield", axis=1)
-    y = df["yield"]
-
-    X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=0.2, random_state=42
-    )
-
-    model = LinearRegression()
-    model.fit(X_train, y_train)
-    y_pred = model.predict(X_test)
-
-    # =============================
-    # Fonction de prédiction
-    # =============================
-    def input_value(culture_type, zone, rainfall, fertilizer_quantity):
-        data = np.array([
-            culture_type,
-            zone,
-            rainfall,
-            fertilizer_quantity
-        ])
-        prediction_data = model.predict(data.reshape(1, -1))
-        return prediction_data
 
     # =============================
     # MAPPINGS
@@ -163,14 +168,18 @@ elif page == "Prévision":
         st.success(
             f"🌾 Rendement estimé : **{prediction[0]:,.2f} t/ha**"
         )
+        # Enregistrer dans l'historique
+        if "historique" not in st.session_state:
+            st.session_state.historique = []
 
+        st.session_state.historique.append({
+            "Culture": culture_label,
+            "Zone": zone_label,
+            "Précipitations (mm)": rainfall,
+            "Quantité de fertilisant (kg)": fertilizer_quantity,
+            "Rendement estimé (t/ha)": prediction[0]
+        })
 
-    st.subheader("📊 Performance du modèle")
-    r2 = r2_score(y_test, y_pred)
-    mse = np.sqrt(mean_squared_error(y_test, y_pred))
-    col3, col4 = st.columns(2)
-    col3.metric("R² Score", f"{r2:.3f}")
-    col4.metric("MSE (t/ha)", f"{mse:,.0f}")
                 
     st.subheader("Résultats de la prévision")
     
@@ -196,6 +205,28 @@ elif page == "Prévision":
             })
         st.dataframe(results)
         
+        # Boutons de téléchargement pour les résultats du modèle
+        col_csv_res, col_excel_res = st.columns(2)
+        with col_csv_res:
+            csv_results = results.to_csv(index=False).encode('utf-8')
+            st.download_button(
+                "📥 Télécharger résultats (CSV)",
+                csv_results,
+                "resultats_modele.csv",
+                "text/csv"
+            )
+        with col_excel_res:
+            buffer = io.BytesIO()
+            results.to_excel(buffer, index=False, engine='openpyxl')
+            buffer.seek(0)
+            excel_results = buffer.getvalue()
+            st.download_button(
+                "📊 Télécharger résultats (Excel)",
+                excel_results,
+                "resultats_modele.xlsx",
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            )
+        
 elif page == "Visualisations":
     st.header("Visualisations des données agricoles")
     st.write("Explorez les tendances et les relations dans vos données agricoles.")
@@ -218,6 +249,32 @@ elif page == "Visualisations":
         fig.update_layout(height=500)
         st.plotly_chart(fig, use_container_width=True)
         
+        # Afficher les données des rendements moyens
+        st.subheader("📋 Données des rendements moyens")
+        st.dataframe(df_viz, use_container_width=True)
+        
+        # Boutons de téléchargement pour les rendements moyens
+        col_csv1, col_excel1 = st.columns(2)
+        with col_csv1:
+            csv_viz = df_viz.to_csv(index=False).encode('utf-8')
+            st.download_button(
+                "📥 Télécharger en CSV",
+                csv_viz,
+                "rendements_moyens.csv",
+                "text/csv"
+            )
+        with col_excel1:
+            buffer = io.BytesIO()
+            df_viz.to_excel(buffer, index=False, engine='openpyxl')
+            buffer.seek(0)
+            excel_viz = buffer.getvalue()
+            st.download_button(
+                "📊 Télécharger en Excel",
+                excel_viz,
+                "rendements_moyens.xlsx",
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            )
+        
         # Répartition du rendement par zone
         st.subheader("📊 Répartition du rendement par zone")
         zone_rendement = df.groupby('zone')['yield'].sum().reset_index()
@@ -231,6 +288,31 @@ elif page == "Visualisations":
             color_discrete_sequence=['#4CAF50', '#FF9800', '#2196F3', '#F44336', '#9C27B0', '#00BCD4']
         )
         st.plotly_chart(fig_pie, use_container_width=True)
+        
+        # Afficher les données de répartition par zone
+        st.dataframe(zone_rendement, use_container_width=True)
+        
+        # Boutons de téléchargement pour la répartition par zone
+        col_csv2, col_excel2 = st.columns(2)
+        with col_csv2:
+            csv_zone = zone_rendement.to_csv(index=False).encode('utf-8')
+            st.download_button(
+                "📥 Télécharger répartition (CSV)",
+                csv_zone,
+                "repartition_zone.csv",
+                "text/csv"
+            )
+        with col_excel2:
+            buffer = io.BytesIO()
+            zone_rendement.to_excel(buffer, index=False, engine='openpyxl')
+            buffer.seek(0)
+            excel_zone = buffer.getvalue()
+            st.download_button(
+                "📊 Télécharger répartition (Excel)",
+                excel_zone,
+                "repartition_zone.xlsx",
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            )
         
         st.info("Ces données sont basées sur les prévisions historiques du système.")
     with tab2:
@@ -247,7 +329,104 @@ elif page == "Visualisations":
         )
         st.plotly_chart(fig2, use_container_width=True)
         
+        # Afficher les données complètes
+        st.subheader("📋 Données complètes")
+        st.dataframe(df, use_container_width=True)
+        
+        # Boutons de téléchargement pour les données complètes
+        col_csv3, col_excel3 = st.columns(2)
+        with col_csv3:
+            csv_full = df.to_csv(index=False).encode('utf-8')
+            st.download_button(
+                "📥 Télécharger données complètes (CSV)",
+                csv_full,
+                "donnees_completes.csv",
+                "text/csv"
+            )
+        with col_excel3:
+            buffer = io.BytesIO()
+            df.to_excel(buffer, index=False, engine='openpyxl')
+            buffer.seek(0)
+            excel_full = buffer.getvalue()
+            st.download_button(
+                "📊 Télécharger données complètes (Excel)",
+                excel_full,
+                "donnees_completes.xlsx",
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            )
+        
         st.info("Comprendre l'impact des conditions climatiques sur le rendement agricole.")
+
+elif page == "Historique":
+    st.header("📜 Historique des prévisions")
+    if not st.session_state["historique"]:
+        st.info("Aucune prédiction enregistrée pour le moment.")
+    else:
+        historique_df = pd.DataFrame(st.session_state["historique"])
+        st.dataframe(historique_df, use_container_width=True)
+
+        # Boutons de téléchargement
+        col_csv_hist, col_excel_hist = st.columns(2)
+        with col_csv_hist:
+            csv = historique_df.to_csv(index=False).encode("utf-8")
+            st.download_button(
+                "📥 Télécharger en CSV",
+                csv,
+                "historique_previsions.csv",
+                "text/csv"
+            )
+        with col_excel_hist:
+            buffer = io.BytesIO()
+            historique_df.to_excel(buffer, index=False, engine='openpyxl')
+            buffer.seek(0)
+            excel = buffer.getvalue()
+            st.download_button(
+                "📊 Télécharger en Excel",
+                excel,
+                "historique_previsions.xlsx",
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            )
+elif page == "Rapport":
+    st.header("📊 Rapport d’analyse du modèle")
+
+    st.subheader("🔍 Description du modèle")
+    st.markdown("""
+    - **Modèle utilisé** : Régression linéaire
+    - **Variables explicatives** :
+        - Type de culture
+        - Zone agricole
+        - Pluviométrie
+        - Quantité d'engrais
+    - **Variable cible** : Rendement agricole (t/ha)
+    """)
+
+    st.subheader("📊 Performance du modèle")
+    r2 = r2_score(y_test, y_pred)
+    mse = np.sqrt(mean_squared_error(y_test, y_pred))
+    col3, col4 = st.columns(2)
+    col3.metric("R² Score", f"{r2:.3f}")
+    col4.metric("MSE (t/ha)", f"{mse:,.0f}")
+    
+    st.info("Ces métriques indiquent la performance du modèle de prédiction.")
+    st.markdown("""
+    - Un R² proche de 1 indique une bonne capacité explicative du modèle.
+    - Un MSE faible suggère des erreurs de prédiction réduites.
+    """)
+    st.subheader("🧠 Interprétation")
+    st.markdown("""
+    - Le modèle explique une part significative de la variation du rendement.
+    - La pluviométrie et la quantité d'engrais ont un impact important.
+    - Les performances peuvent être améliorées avec plus de données terrain.
+    """)
+
+    st.subheader("✅ Recommandations agricoles")
+    st.markdown("""
+    - Adapter les apports d'engrais selon la culture.
+    - Privilégier les périodes à pluviométrie régulière.
+    - Collecter davantage de données locales pour améliorer la précision.
+    """)
+
+
 elif page == "À propos":
     st.header("À propos du Système de Prévision Agricole")
     tab1, tab2 = st.tabs(["Informations", "Équipe de Développement"])
@@ -299,6 +478,7 @@ with col_f2:
 
 with col_f3:
     st.caption("L'IA au service de l'agriculture")
+
 
 
 
