@@ -49,6 +49,7 @@ with st.sidebar:
         "Sélectionnez une section",
         ["Accueil", "Prévision", "Visualisations", "Historique", "Rapport", "À propos"]
     )
+    st.divider()
     st.markdown("Types de cultures")
     cultures = ["Niébé", "Maïs", "Pastèque", "Arachide", "Mil"]
     for culture in cultures:
@@ -204,29 +205,7 @@ elif page == "Prévision":
             "Prédictions": y_pred
             })
         st.dataframe(results)
-        
-        # Boutons de téléchargement pour les résultats du modèle
-        col_csv_res, col_excel_res = st.columns(2)
-        with col_csv_res:
-            csv_results = results.to_csv(index=False).encode('utf-8')
-            st.download_button(
-                "📥 Télécharger résultats (CSV)",
-                csv_results,
-                "resultats_modele.csv",
-                "text/csv"
-            )
-        with col_excel_res:
-            buffer = io.BytesIO()
-            results.to_excel(buffer, index=False, engine='openpyxl')
-            buffer.seek(0)
-            excel_results = buffer.getvalue()
-            st.download_button(
-                "📊 Télécharger résultats (Excel)",
-                excel_results,
-                "resultats_modele.xlsx",
-                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-            )
-        
+
 elif page == "Visualisations":
     st.header("Visualisations des données agricoles")
     st.write("Explorez les tendances et les relations dans vos données agricoles.")
@@ -253,28 +232,6 @@ elif page == "Visualisations":
         st.subheader("📋 Données des rendements moyens")
         st.dataframe(df_viz, use_container_width=True)
         
-        # Boutons de téléchargement pour les rendements moyens
-        col_csv1, col_excel1 = st.columns(2)
-        with col_csv1:
-            csv_viz = df_viz.to_csv(index=False).encode('utf-8')
-            st.download_button(
-                "📥 Télécharger en CSV",
-                csv_viz,
-                "rendements_moyens.csv",
-                "text/csv"
-            )
-        with col_excel1:
-            buffer = io.BytesIO()
-            df_viz.to_excel(buffer, index=False, engine='openpyxl')
-            buffer.seek(0)
-            excel_viz = buffer.getvalue()
-            st.download_button(
-                "📊 Télécharger en Excel",
-                excel_viz,
-                "rendements_moyens.xlsx",
-                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-            )
-        
         # Répartition du rendement par zone
         st.subheader("📊 Répartition du rendement par zone")
         zone_rendement = df.groupby('zone')['yield'].sum().reset_index()
@@ -288,33 +245,6 @@ elif page == "Visualisations":
             color_discrete_sequence=['#4CAF50', '#FF9800', '#2196F3', '#F44336', '#9C27B0', '#00BCD4']
         )
         st.plotly_chart(fig_pie, use_container_width=True)
-        
-        # Afficher les données de répartition par zone
-        st.dataframe(zone_rendement, use_container_width=True)
-        
-        # Boutons de téléchargement pour la répartition par zone
-        col_csv2, col_excel2 = st.columns(2)
-        with col_csv2:
-            csv_zone = zone_rendement.to_csv(index=False).encode('utf-8')
-            st.download_button(
-                "📥 Télécharger répartition (CSV)",
-                csv_zone,
-                "repartition_zone.csv",
-                "text/csv"
-            )
-        with col_excel2:
-            buffer = io.BytesIO()
-            zone_rendement.to_excel(buffer, index=False, engine='openpyxl')
-            buffer.seek(0)
-            excel_zone = buffer.getvalue()
-            st.download_button(
-                "📊 Télécharger répartition (Excel)",
-                excel_zone,
-                "repartition_zone.xlsx",
-                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-            )
-        
-        st.info("Ces données sont basées sur les prévisions historiques du système.")
     with tab2:
 
         st.subheader("🌦️ Analyse des précipitations et du rendement")
@@ -329,32 +259,6 @@ elif page == "Visualisations":
         )
         st.plotly_chart(fig2, use_container_width=True)
         
-        # Afficher les données complètes
-        st.subheader("📋 Données complètes")
-        st.dataframe(df, use_container_width=True)
-        
-        # Boutons de téléchargement pour les données complètes
-        col_csv3, col_excel3 = st.columns(2)
-        with col_csv3:
-            csv_full = df.to_csv(index=False).encode('utf-8')
-            st.download_button(
-                "📥 Télécharger données complètes (CSV)",
-                csv_full,
-                "donnees_completes.csv",
-                "text/csv"
-            )
-        with col_excel3:
-            buffer = io.BytesIO()
-            df.to_excel(buffer, index=False, engine='openpyxl')
-            buffer.seek(0)
-            excel_full = buffer.getvalue()
-            st.download_button(
-                "📊 Télécharger données complètes (Excel)",
-                excel_full,
-                "donnees_completes.xlsx",
-                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-            )
-        
         st.info("Comprendre l'impact des conditions climatiques sur le rendement agricole.")
 
 elif page == "Historique":
@@ -366,7 +270,7 @@ elif page == "Historique":
         st.dataframe(historique_df, use_container_width=True)
 
         # Boutons de téléchargement
-        col_csv_hist, col_excel_hist = st.columns(2)
+        col_csv_hist, col_excel_hist, col_json_hist, col_tsv_hist = st.columns(4)
         with col_csv_hist:
             csv = historique_df.to_csv(index=False).encode("utf-8")
             st.download_button(
@@ -478,10 +382,6 @@ with col_f2:
 
 with col_f3:
     st.caption("L'IA au service de l'agriculture")
-
-
-
-
 
 
 
